@@ -432,6 +432,26 @@ input:focus,textarea:focus,select:focus{
 .qty-presets button.is-on{
   background:var(--navy);color:#fff;border-color:var(--navy);
 }
+.tariff{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:16px;
+}
+.tariff-row{
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f8fafc;
+  transition:border-color .25s ease, background .25s ease, box-shadow .25s ease;
+}
+.tariff-row span{display:block;color:var(--muted);font-size:13px}
+.tariff-row strong{display:block;margin-top:4px;color:var(--navy);font-size:20px;letter-spacing:-.02em}
+.tariff-row.is-on{
+  border-color:var(--purple);
+  background:color-mix(in srgb, var(--purple) 6%, white);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--purple) 12%, transparent);
+}
 .control.is-invalid input,.control.is-invalid textarea,.card.is-invalid{
   border-color:#d15b5b;
 }
@@ -582,7 +602,7 @@ input[type=color]{width:72px;height:42px;padding:4px;border-radius:10px;border:1
   .hero{padding:36px 0 56px}
 }
 @media (max-width:640px){
-  .trust-grid{grid-template-columns:1fr}
+  .trust-grid,.tariff{grid-template-columns:1fr}
 }
 @media (max-width:760px){
   .nav-toggle{display:flex}
@@ -760,6 +780,10 @@ input[type=color]{width:72px;height:42px;padding:4px;border-radius:10px;border:1
                 <button type="button" data-qty="100">100</button>
                 <button type="button" data-qty="200">200</button>
               </div>
+              <div class="tariff" id="tariffBox">
+                <div class="tariff-row" data-tier="unit"><span>Une unité</span><strong>900 FCFA</strong></div>
+                <div class="tariff-row is-on" data-tier="volume"><span>À partir de 50 unités</span><strong>600 FCFA</strong></div>
+              </div>
             </section>
 
             <section class="card reveal" id="etape-conception">
@@ -877,12 +901,13 @@ input[type=color]{width:72px;height:42px;padding:4px;border-radius:10px;border:1
               <div class="summary">
                 <div class="sumrow"><span>Modèle</span><strong id="sumProduct">Calendrier chevalet</strong></div>
                 <div class="sumrow"><span>Quantité</span><strong id="sumQuantity">50 exemplaires</strong></div>
+                <div class="sumrow"><span>Tarif unitaire</span><strong id="sumUnit">600 FCFA</strong></div>
                 <div class="sumrow"><span>Conception</span><strong id="sumDesign">Personnalisation du modèle standard</strong></div>
                 <div class="sumrow"><span>Catalogue</span><strong id="sumCatalogue">Je possède déjà mon catalogue</strong></div>
                 <div class="sumrow" id="sumFormatRow" hidden><span>Format</span><strong id="sumFormat">Catalogue PDF</strong></div>
-                <div class="sumrow total"><span>Estimation</span><strong id="sumPrice">Sur devis</strong></div>
+                <div class="sumrow total"><span>Estimation</span><strong id="sumPrice">30 000 FCFA</strong></div>
               </div>
-              <p class="note">Les prix et remises seront calculés à partir de la grille tarifaire que vous configurerez. Les créations sur mesure et prestations catalogue sont chiffrées séparément.</p>
+              <p class="note">Une unité : 900 FCFA. À partir de 50 unités : 600 FCFA l'unité. Les créations sur mesure et le catalogue sont chiffrés séparément.</p>
               <button class="wa-btn" type="submit">
                 <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l6-1.6A11 11 0 0 0 12 22a11 11 0 0 0 8.5-18.5zM12 20.2a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-3.5.9.9-3.4-.2-.3A9.1 9.1 0 1 1 12 20.2zm5-6.8c-.3-.1-1.6-.8-1.8-.9s-.4-.1-.6.1-.7.9-.9 1.1-.3.2-.6.1a7.4 7.4 0 0 1-2.2-1.4 8.1 8.1 0 0 1-1.5-1.9c-.2-.3 0-.4.1-.6l.4-.4.2-.4a.5.5 0 0 0 0-.5c-.1-.1-.6-1.5-.8-2s-.4-.5-.6-.5h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4 3.6 3.6 0 0 0 1.7.1 2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.2-.3-.2-.6-.3z"/></svg>
                 <span>Envoyer ma demande sur WhatsApp</span>
@@ -1025,15 +1050,29 @@ function updateSummary() {
   $("sumQuantity").textContent = qty ? quantityLabel(qty) : "À préciser";
   $("sumDesign").textContent = design || "À préciser";
   $("sumCatalogue").textContent = catalogue || "À préciser";
-  const unit = product === "connecte" ? state.config.prices.connecte : state.config.prices.chevalet;
-  if (!qty || unit === null || unit === "" || !Number.isFinite(Number(unit))) {
-    $("sumPrice").textContent = "Sur devis";
-  } else {
-    let total = Number(unit) * qty;
-    const disc = state.config.discount || {};
-    if (disc.qty && Number(disc.pct) > 0 && qty >= Number(disc.qty)) total *= 1 - Number(disc.pct) / 100;
-    $("sumPrice").textContent = Math.round(total).toLocaleString("fr-FR") + " FCFA";
+  const configured = product === "connecte" ? state.config.prices.connecte : state.config.prices.chevalet;
+  const hasCustomPrice = configured !== null && configured !== "" && Number.isFinite(Number(configured));
+  let unitPrice = null;
+  let total = null;
+  if (qty) {
+    if (hasCustomPrice) {
+      unitPrice = Number(configured);
+      total = unitPrice * qty;
+      const disc = state.config.discount || {};
+      if (disc.qty && Number(disc.pct) > 0 && qty >= Number(disc.qty)) total *= 1 - Number(disc.pct) / 100;
+      total = Math.round(total);
+    } else {
+      unitPrice = qty >= 50 ? 600 : 900;
+      total = unitPrice * qty;
+    }
   }
+  $("sumUnit").textContent = unitPrice === null ? "À préciser" : unitPrice.toLocaleString("fr-FR") + " FCFA";
+  $("sumPrice").textContent = total === null ? "Sur devis" : total.toLocaleString("fr-FR") + " FCFA";
+  document.querySelectorAll("[data-tier]").forEach(row => {
+    const volume = !!qty && qty >= 50 && !hasCustomPrice;
+    const single = !!qty && qty < 50 && !hasCustomPrice;
+    row.classList.toggle("is-on", (row.getAttribute("data-tier") === "volume" && volume) || (row.getAttribute("data-tier") === "unit" && single));
+  });
   document.querySelectorAll("[data-product]").forEach(card => {
     card.classList.toggle("is-selected", card.getAttribute("data-product") === product);
   });
@@ -1124,6 +1163,7 @@ function buildWhatsAppMessage() {
     "📚 CATALOGUE : " + catalogue
   ];
   if (catalogueNeedsFormat(catalogue)) lines.push("📄 FORMAT DU CATALOGUE : " + $("catalogueFormat").value);
+  lines.push("💰 TARIF UNITAIRE : " + $("sumUnit").textContent);
   lines.push("💰 ESTIMATION : " + $("sumPrice").textContent);
   lines.push("", "👤 MES COORDONNÉES", "", "Nom : " + $("name").value.trim());
   const company = $("company").value.trim();

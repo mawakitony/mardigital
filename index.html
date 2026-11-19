@@ -772,17 +772,18 @@ input[type=color]{width:72px;height:42px;padding:4px;border-radius:10px;border:1
               </div>
               <label class="field" for="quantity">Quantité souhaitée *</label>
               <div class="qty-row">
-                <input id="quantity" type="number" inputmode="numeric" min="1" step="1" value="50" required>
+                <input id="quantity" type="number" inputmode="numeric" min="1" step="1" value="5" required>
               </div>
               <div class="qty-presets" role="group" aria-label="Quantités fréquentes">
+                <button type="button" data-qty="5" class="is-on">5</button>
                 <button type="button" data-qty="25">25</button>
-                <button type="button" data-qty="50" class="is-on">50</button>
+                <button type="button" data-qty="50">50</button>
                 <button type="button" data-qty="100">100</button>
                 <button type="button" data-qty="200">200</button>
               </div>
               <div class="tariff" aria-label="Tarif des calendriers">
-                <div class="tariff-row" id="tariffUnit"><span>Une unité</span><strong>900 FCFA</strong></div>
-                <div class="tariff-row is-on" id="tariffVolume"><span>À partir de 50 unités</span><strong>600 FCFA</strong></div>
+                <div class="tariff-row is-on" id="tariffUnit"><span>Une unité</span><strong>900 FCFA</strong></div>
+                <div class="tariff-row" id="tariffVolume"><span>À partir de 50 unités</span><strong>600 FCFA</strong></div>
               </div>
             </section>
 
@@ -900,12 +901,12 @@ input[type=color]{width:72px;height:42px;padding:4px;border-radius:10px;border:1
               </div>
               <div class="summary">
                 <div class="sumrow"><span>Modèle</span><strong id="sumProduct">Calendrier chevalet</strong></div>
-                <div class="sumrow"><span>Quantité</span><strong id="sumQuantity">50 exemplaires</strong></div>
-                <div class="sumrow"><span>Tarif unitaire</span><strong id="sumUnit">600 FCFA</strong></div>
+                <div class="sumrow"><span>Quantité</span><strong id="sumQuantity">5 exemplaires</strong></div>
+                <div class="sumrow"><span>Tarif unitaire</span><strong id="sumUnit">900 FCFA</strong></div>
                 <div class="sumrow"><span>Conception</span><strong id="sumDesign">Personnalisation du modèle standard</strong></div>
                 <div class="sumrow"><span>Catalogue</span><strong id="sumCatalogue">Je possède déjà mon catalogue</strong></div>
                 <div class="sumrow" id="sumFormatRow" hidden><span>Format</span><strong id="sumFormat">Catalogue PDF</strong></div>
-                <div class="sumrow total"><span>Estimation</span><strong id="sumPrice">30 000 FCFA</strong></div>
+                <div class="sumrow total"><span>Estimation</span><strong id="sumPrice">4 500 FCFA</strong></div>
               </div>
               <p class="note">1 unité : 900 FCFA. À partir de 50 unités : 600 FCFA l'unité. Les créations sur mesure et les prestations catalogue sont chiffrées séparément.</p>
               <button class="wa-btn" type="submit">
